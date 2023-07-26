@@ -13,4 +13,9 @@ public class Consumer {
 	public void listen(String msg) {
 		log.info(msg);
 	}
+	
+	@JmsListener(destination = "${spring.activemq.queue1}")
+	public void listenQueue(String msg) {
+		log.info(msg);
+	}
 }

@@ -21,8 +21,17 @@ public class Producer {
 	@Value("${spring.activemq.topic1}")
 	private String destinationTopic;
 	
+	@Value("${spring.activemq.queue1}")
+    private String destinationQueue;
+	
 	public void send(Object input) throws JMSException, JsonProcessingException{
 		String jsonString =new ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(input);
+		
 		jsmTemplate.convertAndSend(destinationTopic, jsonString);
+	}
+	
+	public void sendQueue(Object input) throws JMSException, JsonProcessingException{
+		String jsonString =new ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(input);
+		jsmTemplate.convertAndSend(destinationQueue, jsonString);
 	}
 }

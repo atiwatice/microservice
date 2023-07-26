@@ -10,8 +10,12 @@ import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.support.destination.DynamicDestinationResolver;
 
 import jakarta.jms.ConnectionFactory;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSException;
+import jakarta.jms.Session;
 
 @Configuration
 @EnableJms
@@ -45,6 +49,7 @@ public class JmsConfigConsumer {
 		factory.setPubSubDomain(true);
 		factory.setClientId("consumer");
 		factory.setSubscriptionDurable(true);
+		factory.setDestinationResolver(destinationResolver2());
 		return factory;
 	}
 	
@@ -52,12 +57,37 @@ public class JmsConfigConsumer {
 	public JmsTemplate jmsTemplateTopic2() {
 		JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory2());
 		jmsTemplate.setPubSubDomain(true);
+		jmsTemplate.setDestinationResolver(destinationResolver2());
+		jmsTemplate.setDeliveryPersistent(true);
 		return jmsTemplate;
 	}
 	
 	@Bean("jmsTemplate2")
 	public JmsTemplate jmsTemplate2() {
-		return new JmsTemplate(connectionFactory2());
+		JmsTemplate template = new JmsTemplate();
+		template.setConnectionFactory(connectionFactory2());
+		
+		template.setPubSubDomain(true);
+		template.setDestinationResolver(destinationResolver2());
+		template.setDeliveryPersistent(true);
+
+		return template;
+	}
+	
+	@Bean("destinationResolver2")
+	DynamicDestinationResolver destinationResolver2() {
+		return new DynamicDestinationResolver() {
+			@Override
+			public Destination resolveDestinationName(Session session, String destinationName, boolean pubSubDomain)
+					throws JMSException {
+				if (destinationName.endsWith("Topic")) {
+					pubSubDomain = true;
+				} else {
+					pubSubDomain = false;
+				}
+				return super.resolveDestinationName(session, destinationName, pubSubDomain);
+			}
+		};
 	}
 	
 }

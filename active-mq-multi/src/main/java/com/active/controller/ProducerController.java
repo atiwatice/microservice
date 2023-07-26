@@ -33,4 +33,21 @@ public class ProducerController {
 		return "testProduce";
 	}
 
+	@GetMapping("/testQueue")
+	public String testProduceQueue() {
+
+		try {
+			producer.sendQueue(Employee.builder().id("2").name("Kelvin").age(20).build());
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+
+			e.printStackTrace();
+		} catch (JMSException e) {
+
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "testProduce";
+	}
+
 }
